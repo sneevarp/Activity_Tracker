@@ -52,6 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker marker;
     private BroadcastReceiver broadcastReceiver;
     private String currentActivity;
+    private Location currentLocation;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -76,6 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
+                    Log.d(TAG, "Broadcast Check");
                     int type = intent.getIntExtra("type", -1);
                     int confidence = intent.getIntExtra("confidence", 0);
                     handleUserActivity(type, confidence);
@@ -96,6 +98,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void setCurrentActivityText(String currentActivity) {
         this.currentActivity = currentActivity;
+    }
+
+    public Location getCurrentLocation() {
+        return currentLocation;
+    }
+
+    public void setCurrentLocation(Location currentLocation) {
+        this.currentLocation = currentLocation;
     }
 
     private void handleUserActivity(int type, int confidence) {
@@ -137,6 +147,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (confidence > Constants.CONFIDENCE) {
             setCurrentActivityText(label);
+            if(getCurrentLocation() != null)  addMarker(getCurrentLocation());
         }
 
     }
@@ -194,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     public void onLocationResult(LocationResult locationResult) {
                         Log.d(TAG, "onLocationResult: got location result.");
                         Location location = locationResult.getLastLocation();
-                        addMarker(location);
+                        setCurrentLocation(location);
                     }
                 },
                 Looper.myLooper()); // Looper.myLooper tells this to repeat forever until thread is destroyed

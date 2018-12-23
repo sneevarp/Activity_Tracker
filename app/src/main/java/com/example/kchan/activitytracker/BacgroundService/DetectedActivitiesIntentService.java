@@ -3,6 +3,7 @@ package com.example.kchan.activitytracker.BacgroundService;
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import com.example.kchan.activitytracker.Utils.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -27,6 +28,7 @@ public class DetectedActivitiesIntentService extends IntentService {
     @SuppressWarnings("unchecked")
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.d(TAG, "Handle Intent");
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
         // Get the list of the probable activities associated with the current state of the
