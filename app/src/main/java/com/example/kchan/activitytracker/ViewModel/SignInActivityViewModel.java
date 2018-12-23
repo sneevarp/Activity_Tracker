@@ -1,4 +1,4 @@
-package com.example.kchan.activitytracker.viewModel;
+package com.example.kchan.activitytracker.ViewModel;
 
 import android.content.Context;
 import android.content.Intent;

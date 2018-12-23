@@ -1,6 +1,10 @@
 package com.example.kchan.activitytracker;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,14 +14,17 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.kchan.activitytracker.BacgroundService.BackgroundDetectedActivitiesService;
 import com.example.kchan.activitytracker.Utils.Constants;
-import com.example.kchan.activitytracker.viewModel.MapsActivityViewModel;
+import com.example.kchan.activitytracker.ViewModel.MapsActivityViewModel;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -43,6 +50,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient mfusedLocationProviderClient;
     private Location mLastKnownLocation;
     private Marker marker;
+    private BroadcastReceiver broadcastReceiver;
+    private String currentActivity;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -62,17 +71,94 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googleSigninClientValue = new GoogleSignInClientValue(this);
         mapsActivityViewModel= new MapsActivityViewModel();
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
+        startTracking();
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
+                    int type = intent.getIntExtra("type", -1);
+                    int confidence = intent.getIntExtra("confidence", 0);
+                    handleUserActivity(type, confidence);
+                }
+            }
+        };
         initMap();
+    }
+
+    private void startTracking() {
+        Intent intent1 = new Intent(MapsActivity.this, BackgroundDetectedActivitiesService.class);
+        startService(intent1);
+    }
+
+    public String getCurrentActivityText() {
+        return currentActivity;
+    }
+
+    public void setCurrentActivityText(String currentActivity) {
+        this.currentActivity = currentActivity;
+    }
+
+    private void handleUserActivity(int type, int confidence) {
+        String label = getString(R.string.activity_unknown);
+        switch (type) {
+            case DetectedActivity.IN_VEHICLE: {
+                label = getString(R.string.activity_in_vehicle);
+                break;
+            }
+            case DetectedActivity.ON_BICYCLE: {
+                label = getString(R.string.activity_on_bicycle);
+                break;
+            }
+            case DetectedActivity.ON_FOOT: {
+                label = getString(R.string.activity_on_foot);
+                break;
+            }
+            case DetectedActivity.RUNNING: {
+                label = getString(R.string.activity_running);
+                break;
+            }
+            case DetectedActivity.STILL: {
+                label = getString(R.string.activity_still);
+                break;
+            }
+            case DetectedActivity.TILTING: {
+                label = getString(R.string.activity_tilting);
+                break;
+            }
+            case DetectedActivity.WALKING: {
+                label = getString(R.string.activity_walking);
+                break;
+            }
+            case DetectedActivity.UNKNOWN: {
+                label = getString(R.string.activity_unknown);
+                break;
+            }
+        }
+
+        if (confidence > Constants.CONFIDENCE) {
+            setCurrentActivityText(label);
+        }
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Intent intent = new Intent(MapsActivity.this, BackgroundDetectedActivitiesService.class);
+        stopService(intent);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
     private void updateLocationUI() {
@@ -117,7 +203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void addMarker(Location location){
         marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
-                .title("I'm here"));
+                .title(getCurrentActivityText()));
     }
 
     private void getDeviceLocation() {

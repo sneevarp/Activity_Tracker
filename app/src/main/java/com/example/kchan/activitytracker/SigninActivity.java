@@ -17,7 +17,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.kchan.activitytracker.Utils.Constants;
-import com.example.kchan.activitytracker.viewModel.SignInActivityViewModel;
+import com.example.kchan.activitytracker.ViewModel.SignInActivityViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.ConnectionResult;

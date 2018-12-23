@@ -1,9 +1,8 @@
-package com.example.kchan.activitytracker;
+package com.example.kchan.activitytracker.BacgroundService;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.example.kchan.activitytracker.Utils.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -36,7 +35,6 @@ public class DetectedActivitiesIntentService extends IntentService {
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
         for (DetectedActivity activity : detectedActivities) {
-            Log.e(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
             broadcastActivity(activity);
         }
     }

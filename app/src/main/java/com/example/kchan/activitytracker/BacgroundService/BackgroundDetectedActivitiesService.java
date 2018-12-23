@@ -1,4 +1,4 @@
-package com.example.kchan.activitytracker;
+package com.example.kchan.activitytracker.BacgroundService;
 
 import android.app.PendingIntent;
 import android.app.Service;
