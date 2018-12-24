@@ -108,6 +108,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.currentLocation = currentLocation;
     }
 
+    @Override
+    public void onBackPressed() {
+      // TODO Define operation on backpress
+    }
+
     private void handleUserActivity(int type, int confidence) {
         String label = getString(R.string.activity_unknown);
         switch (type) {
