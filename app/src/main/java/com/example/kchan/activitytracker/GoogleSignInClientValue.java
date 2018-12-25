@@ -7,12 +7,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 
 public class GoogleSignInClientValue {
+    // Build a GoogleSignInClient with the options specified by gso.
+    public GoogleSignInClient mGoogleSignInClient;
     // Configure sign-in to request the user's ID, email address, and basic
     // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
     GoogleSignInOptions gso ;
-
-    // Build a GoogleSignInClient with the options specified by gso.
-    public GoogleSignInClient mGoogleSignInClient;
 
     public GoogleSignInClientValue() {
 
