@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.example.kchan.activitytracker.GoogleSignInClientValue;
 import com.example.kchan.activitytracker.MapsActivity;
+import com.example.kchan.activitytracker.Singleton.User;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
@@ -37,6 +38,11 @@ public class SignInActivityViewModel {
 
         }else {
             googleSigninClientValue = new GoogleSignInClientValue(context);
+            User.init(account);
+            User user = User.getInstance();
+            user.setAccount(account);
+            Log.d("userNAME", user.getAccount().getGivenName());
+            Log.d("userNAME", user.getAccount().getId());
             Intent intent = new Intent(context, MapsActivity.class);
             context.startActivity(intent);
         }

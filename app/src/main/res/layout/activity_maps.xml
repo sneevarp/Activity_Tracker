@@ -32,6 +32,13 @@
                 android:layout_height="match_parent"
                 tools:context=".MapsActivity" />
 
+            <FrameLayout
+                android:id="@+id/profile_fragment"
+                android:name="com.example.kchan.activitytracker.ProfileFragment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal" />
+
         </FrameLayout>
     </LinearLayout>
 
