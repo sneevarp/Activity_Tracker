@@ -11,12 +11,11 @@
     android:gravity="bottom">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/profilepic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|left"
-        android:background="@drawable/bg_circle"
-        android:src="@drawable/ic_launcher_foreground" />
+        android:src="@mipmap/ic_launcher" />
 
     <TextView
         android:id="@+id/name"
@@ -24,7 +23,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical|left"
         android:padding="5dp"
-        android:paddingStart="30dp"
+
         android:text="Name"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="#FFFFFF"
@@ -35,7 +34,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left"
-        android:paddingStart="25dp"
+        android:padding="5dp"
         android:text="Email ID"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         android:textColor="#FFFFFF"

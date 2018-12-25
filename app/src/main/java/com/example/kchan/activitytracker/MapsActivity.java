@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -24,13 +25,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.Toolbar;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.kchan.activitytracker.BacgroundService.BackgroundDetectedActivitiesService;
 import com.example.kchan.activitytracker.Utils.Constants;
 import com.example.kchan.activitytracker.ViewModel.MapsActivityViewModel;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -64,6 +70,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Location currentLocation;
     private NavigationView navigationView;
     private DrawerLayout mDrawerLayout;
+    private String personName;
+    private String personGivenName;
+    private String personFamilyName;
+    private String personEmail;
+    private String personId;
+    private Uri personPhoto;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -82,8 +94,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_maps);
         Toolbar toolBar = findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
-        TextView name=findViewById(R.id.name);
-        name.setText("Praveen Sivakumar");
+
+     //
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
@@ -107,6 +119,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         };
         initMap();
+        GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(MapsActivity.this);
+        if (acct != null) {
+            personName = acct.getDisplayName();
+            personGivenName = acct.getGivenName();
+            personFamilyName = acct.getFamilyName();
+            personEmail = acct.getEmail();
+            personId = acct.getId();
+            personPhoto = acct.getPhotoUrl();
+        }
+
     }
 
     private void startTracking() {
@@ -278,7 +300,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_options, menu);
+        TextView gname=(TextView)findViewById(R.id.name);
+        gname.setText(personGivenName+" "+personFamilyName);
+        TextView gemail=(TextView)findViewById(R.id.email);
+        gemail.setText(personEmail);
+        ImageView gphoto=findViewById(R.id.profilepic);
+        Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);
         return true;
+
     }
 
     @Override
