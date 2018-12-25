@@ -38,6 +38,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
@@ -106,11 +108,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void setCurrentLocation(Location currentLocation) {
         this.currentLocation = currentLocation;
-    }
-
-    @Override
-    public void onBackPressed() {
-      // TODO Define operation on backpress
     }
 
     private void handleUserActivity(int type, int confidence) {
@@ -311,6 +308,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    @Override
+    public void onBackPressed(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Exit");
+        builder.setMessage("Are You Sure?");
+
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                //finish();
+                //int pid = android.os.Process.myPid();
+                //android.os.Process.killProcess(pid);
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                startActivity(intent);
+                //onDestroy();
+                //finishAndRemoveTask();
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 }
 
