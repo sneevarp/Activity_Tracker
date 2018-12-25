@@ -13,9 +13,9 @@ import com.google.android.gms.tasks.Task;
 
 public class SignInActivityViewModel {
 
+    public static final int RC_SIGN_IN = 1;
     private static final String TAG = "SIGNINVIEWMODEL" ;
     private GoogleSignInClientValue googleSigninClientValue;
-    public static final int RC_SIGN_IN = 1;
 
     public SignInActivityViewModel() {
     }
@@ -41,8 +41,6 @@ public class SignInActivityViewModel {
             User.init(account);
             User user = User.getInstance();
             user.setAccount(account);
-            Log.d("userNAME", user.getAccount().getGivenName());
-            Log.d("userNAME", user.getAccount().getId());
             Intent intent = new Intent(context, MapsActivity.class);
             context.startActivity(intent);
         }

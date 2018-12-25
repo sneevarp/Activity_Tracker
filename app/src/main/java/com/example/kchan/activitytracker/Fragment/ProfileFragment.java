@@ -24,19 +24,18 @@ public class ProfileFragment extends Fragment {
     private TextView fullName;
     private ImageView imageView;
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public ProfileFragment() {
+        // Required empty public constructor
     }
 
     public static ProfileFragment newInstance(){
         return new ProfileFragment();
     }
 
-    public ProfileFragment() {
-        // Required empty public constructor
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

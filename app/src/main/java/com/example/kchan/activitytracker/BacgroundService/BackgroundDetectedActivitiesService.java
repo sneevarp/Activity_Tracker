@@ -17,18 +17,10 @@ import com.google.android.gms.tasks.Task;
 
 public class BackgroundDetectedActivitiesService extends Service {
     private static final String TAG = BackgroundDetectedActivitiesService.class.getSimpleName();
-
+    IBinder mBinder = new BackgroundDetectedActivitiesService.LocalBinder();
     private Intent mIntentService;
     private PendingIntent mPendingIntent;
     private ActivityRecognitionClient mActivityRecognitionClient;
-
-    IBinder mBinder = new BackgroundDetectedActivitiesService.LocalBinder();
-
-    public class LocalBinder extends Binder {
-        public BackgroundDetectedActivitiesService getServerInstance() {
-            return BackgroundDetectedActivitiesService.this;
-        }
-    }
 
     public BackgroundDetectedActivitiesService() {
 
@@ -107,5 +99,11 @@ public class BackgroundDetectedActivitiesService extends Service {
     public void onDestroy() {
         super.onDestroy();
         removeActivityUpdatesButtonHandler();
+    }
+
+    public class LocalBinder extends Binder {
+        public BackgroundDetectedActivitiesService getServerInstance() {
+            return BackgroundDetectedActivitiesService.this;
+        }
     }
 }

@@ -4,20 +4,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
 public class User {
     private static User instance;
-    private GoogleSignInAccount  account;
+    private GoogleSignInAccount account;
+
+    private User(GoogleSignInAccount account) {
+        this.account = account;
+    }
 
     public static User getInstance() {
         return instance;
     }
 
-    private User(GoogleSignInAccount  account) {
-        this.account = account;
-    }
-
-    public static void init(GoogleSignInAccount account){
+    public static void init(GoogleSignInAccount account) {
         instance = new User(account);
     }
-    public GoogleSignInAccount  getAccount() {
+
+    public GoogleSignInAccount getAccount() {
         return account;
     }
 
