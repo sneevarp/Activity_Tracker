@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         config {
-            keyAlias 'android'
+            keyAlias 'androiddebugkey'
             keyPassword 'android'
-            storeFile file("debug.keystore")
+            storeFile file("/debug.keystore")
             storePassword 'android'
         }
     }
@@ -22,6 +22,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            signingConfig signingConfigs.config
         }
     }
 }
