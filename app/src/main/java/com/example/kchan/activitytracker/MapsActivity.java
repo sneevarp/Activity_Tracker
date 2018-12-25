@@ -12,14 +12,20 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
+import android.support.v7.widget.Toolbar;
 
 import com.example.kchan.activitytracker.BacgroundService.BackgroundDetectedActivitiesService;
 import com.example.kchan.activitytracker.Utils.Constants;
@@ -42,7 +48,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
 
     private static final String TAG = "MapActivity";
     private static final float DEFAULT_ZOOM = 5.0F;
@@ -55,6 +61,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private BroadcastReceiver broadcastReceiver;
     private String currentActivity;
     private Location currentLocation;
+    private NavigationView navigationView;
+    private DrawerLayout mDrawerLayout;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -71,10 +79,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        Toolbar toolBar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolBar);
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+        mDrawerLayout = findViewById(R.id.drawer_layout);
         googleSigninClientValue = new GoogleSignInClientValue(this);
         mapsActivityViewModel= new MapsActivityViewModel();
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
         startTracking();
+        navigationView = (NavigationView)findViewById(R.id.nav_view);
+        navigationView.getMenu().clear();
+        navigationView.inflateMenu(R.menu.drawer_view);
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -264,6 +281,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            case R.id.signout:
+                googleSigninClientValue.getInstance().signOut()
+                        .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(MapsActivity.this, "Lets logout", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                mapsActivityViewModel.onLogoutClicked(this);
+                return true;
+            case R.id.profile:
+                Toast.makeText(this, "Open Profile page", Toast.LENGTH_SHORT).show();
+                return true;
             case R.id.normal_map:
                 mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 return true;
@@ -275,16 +308,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return true;
             case R.id.terrain_map:
                 mMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-                return true;
-            case R.id.log_out:
-                googleSigninClientValue.getInstance().signOut()
-                        .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Toast.makeText(MapsActivity.this, "Lets logout", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                mapsActivityViewModel.onLogoutClicked(this);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
