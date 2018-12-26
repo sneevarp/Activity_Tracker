@@ -403,6 +403,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         if (isProfileFragmentEnabled) {
             closeProfileFragment();
+            isProfileFragmentEnabled = false;
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Exit");
