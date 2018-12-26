@@ -5,9 +5,7 @@ public class UserInfo {
     private String email;
 
     public UserInfo()
-    {
-
-    }
+    { }
 
     public void setName(String name)
     {

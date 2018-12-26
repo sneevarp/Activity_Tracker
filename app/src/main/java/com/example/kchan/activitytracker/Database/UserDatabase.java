@@ -5,22 +5,18 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class UserDatabase {
+    UserInfo userInfo = new UserInfo();
     private DatabaseReference mDatabase;
-    private String Email, Name;
-    UserInfo UI = new UserInfo();
-    private boolean returnBool = false;
-    public UserDatabase(String Email, String Name)
+    private String email, name;
+
+    public UserDatabase(String email, String name)
     {
-        this.Email = Email;
-        this.Name = Name;
+        this.email = email;
+        this.name = name;
     }
     public UserDatabase()
     {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("UserDB");
-    }
-    public void writeUser()
-    {
-
     }
 
     public void storeUser(User user)
@@ -28,10 +24,9 @@ public class UserDatabase {
         String googleUserID = user.getAccount().getId();
         if(googleUserID != null)
         {
-            UI.setEmail(user.getAccount().getEmail());
-            UI.setName(user.getAccount().getDisplayName());
-            mDatabase.child(googleUserID).setValue(UI);
+            userInfo.setEmail(user.getAccount().getEmail());
+            userInfo.setName(user.getAccount().getDisplayName());
+            mDatabase.child(googleUserID).setValue(userInfo);
         }
     }
-
 }
