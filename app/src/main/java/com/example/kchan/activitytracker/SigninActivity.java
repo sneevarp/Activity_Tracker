@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 
 import static com.example.kchan.activitytracker.Utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
@@ -43,7 +44,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         signInActivityViewModel = new SignInActivityViewModel();
         //register the buttons
         findViewById(R.id.sign_in_button).setOnClickListener((View.OnClickListener) this);
-
+        FirebaseApp.initializeApp(this);
 
     }
 
@@ -154,6 +155,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
+                    FirebaseApp.initializeApp(this);
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
                     signInActivityViewModel.handleSignInResult(this,task);
                 }

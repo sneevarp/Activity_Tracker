@@ -42,13 +42,10 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        user = User.getInstance();
         fullName = (TextView)view.findViewById(R.id.FullName);
         User user = User.getInstance();
         fullName.setText(user.getAccount().getDisplayName());
-
         imageView = (ImageView)view.findViewById(R.id.profileImage);
-
         if(user.getAccount().getPhotoUrl() != null)
         Glide.with(this).load(user.getAccount().getPhotoUrl().toString()).into(imageView);
 
