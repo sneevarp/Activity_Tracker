@@ -4,10 +4,12 @@
             android:id="@+id/profile"
             android:title="@string/profile"
             android:onClick="onOptionsItemSelected"
+            android:icon="@mipmap/ic_person_black_24dp"
             />
         <item
             android:id="@+id/signout"
             android:title="@string/signout"
             android:onClick="onOptionsItemSelected"
+            android:icon="@mipmap/ic_settings_black_24dp"
             />
 </menu>
