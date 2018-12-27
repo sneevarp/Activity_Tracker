@@ -8,6 +8,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -54,6 +56,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -68,6 +72,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mfusedLocationProviderClient;
     private Location mLastKnownLocation;
     private Marker marker;
+    private Polyline line;
     private BroadcastReceiver broadcastReceiver;
     private String currentActivity;
     private Location currentLocation;
@@ -81,6 +86,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Uri personPhoto;
     private boolean isProfileFragmentEnabled;
     private User currentUser;
+    private int zoom;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -171,41 +177,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (type) {
             case DetectedActivity.IN_VEHICLE: {
                 label = getString(R.string.activity_in_vehicle);
+                zoom=14;
                 break;
             }
             case DetectedActivity.ON_BICYCLE: {
                 label = getString(R.string.activity_on_bicycle);
+                zoom=14;
                 break;
             }
             case DetectedActivity.ON_FOOT: {
                 label = getString(R.string.activity_on_foot);
+                zoom=14;
                 break;
             }
             case DetectedActivity.RUNNING: {
                 label = getString(R.string.activity_running);
+                zoom=14;
                 break;
             }
             case DetectedActivity.STILL: {
-                label = getString(R.string.activity_still);
+                label = getString(R.string.activity_still);zoom=14;
                 break;
             }
             case DetectedActivity.TILTING: {
-                label = getString(R.string.activity_tilting);
+                label = getString(R.string.activity_tilting);zoom=14;
                 break;
             }
             case DetectedActivity.WALKING: {
-                label = getString(R.string.activity_walking);
+                label = getString(R.string.activity_walking);zoom=14;
                 break;
             }
             case DetectedActivity.UNKNOWN: {
-                label = getString(R.string.activity_unknown);
+                label = getString(R.string.activity_unknown);zoom=14;
                 break;
             }
         }
 
         if (confidence > Constants.CONFIDENCE) {
             setCurrentActivityText(label);
-            if(getCurrentLocation() != null)  addMarker(getCurrentLocation());
+
+            if(getCurrentLocation() != null)
+            {
+                addMarker(getCurrentLocation());
+            }
         }
 
     }
@@ -273,6 +287,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         marker = mMap.addMarker(new MarkerOptions()
                 .position(new LatLng(location.getLatitude(), location.getLongitude()))
                 .title(getCurrentActivityText()));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),zoom));
     }
 
     private void getDeviceLocation() {
@@ -319,7 +334,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView gemail=(TextView)findViewById(R.id.email);
         gemail.setText(personEmail);
         ImageView gphoto=findViewById(R.id.profilepic);
-        Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);
+        if(personPhoto!=null) {
+            Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);
+        }
+        else
+        {
+            gphoto.setImageResource(R.drawable.defaultimage);
+        }
         return true;
     }
 
