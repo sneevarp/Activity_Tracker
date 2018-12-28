@@ -1,5 +1,8 @@
 package com.example.kchan.activitytracker.Database;
 
+import android.util.Log;
+
+import com.example.kchan.activitytracker.DetailsActivity;
 import com.example.kchan.activitytracker.Singleton.User;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -19,14 +22,12 @@ public class UserDatabase {
         mDatabase = FirebaseDatabase.getInstance().getReference().child("UserDB");
     }
 
-    public void storeUser(User user)
+    public void storeUser(User user, UserInfo uInfo)
     {
         String googleUserID = user.getAccount().getId();
         if(googleUserID != null)
         {
-            userInfo.setEmail(user.getAccount().getEmail());
-            userInfo.setName(user.getAccount().getDisplayName());
-            mDatabase.child(googleUserID).setValue(userInfo);
+            mDatabase.child(googleUserID).setValue(uInfo);
         }
     }
 }
