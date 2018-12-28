@@ -2,6 +2,8 @@ package com.example.kchan.activitytracker.Utils;
 
 public class Constants {
     public static final String BROADCAST_DETECTED_ACTIVITY = "activity_intent";
+    public static final String BROADCAST_LOCATION_SERVICES = "location_intent";
+    public static final float DEFAULT_ZOOM = 5.0F;
     public static final long DETECTION_INTERVAL_IN_MILLISECONDS = 20 * 1000;
     public static final int CONFIDENCE = 60;
     public static final int ERROR_DIALOG_REQUEST = 9001;
