@@ -14,11 +14,11 @@
 
     <application
         android:allowBackup="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true">
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -41,7 +41,7 @@
         </activity>
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:label="@string/title_activity_maps" />
         <!--
      Service that provides activity recognition data. Setting the android:exported attribute
      to "false" stops other apps from starting this service, even when using an explicit
@@ -51,6 +51,8 @@
             android:name=".BacgroundService.DetectedActivitiesIntentService"
             android:exported="false" />
         <service android:name=".BacgroundService.BackgroundDetectedActivitiesService" />
+
+        <activity android:name=".DetailsActivity"></activity>
     </application>
 
 </manifest>

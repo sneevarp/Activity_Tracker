@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.kchan.activitytracker.Database.UserDatabase;
+import com.example.kchan.activitytracker.DetailsActivity;
 import com.example.kchan.activitytracker.GoogleSignInClientValue;
 import com.example.kchan.activitytracker.MapsActivity;
 import com.example.kchan.activitytracker.Singleton.User;
@@ -65,9 +66,12 @@ public class SignInActivityViewModel {
                     else
                     {
                         Log.e("Inside else","Did not find copy");
-                        userDB.storeUser(user);
-                        Intent intent = new Intent(context, MapsActivity.class);
+                        //userDB.storeUser(user);
+                        Intent intent = new Intent(context, DetailsActivity.class);
                         context.startActivity(intent);
+
+                        /*Intent intent = new Intent(context, MapsActivity.class);
+                        context.startActivity(intent);*/
                     }
                 }
                 @Override
