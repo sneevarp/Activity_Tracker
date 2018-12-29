@@ -3,21 +3,32 @@ package com.example.kchan.activitytracker.ViewModel;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import com.example.kchan.activitytracker.Database.UserDatabase;
 import com.example.kchan.activitytracker.DetailsActivity;
 import com.example.kchan.activitytracker.GoogleSignInClientValue;
 import com.example.kchan.activitytracker.MapsActivity;
+import com.example.kchan.activitytracker.SigninActivity;
 import com.example.kchan.activitytracker.Singleton.User;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.util.concurrent.Executor;
+
 
 public class SignInActivityViewModel {
 
@@ -26,6 +37,7 @@ public class SignInActivityViewModel {
     private GoogleSignInClientValue googleSigninClientValue;
     private String googleUserID;
     private DatabaseReference mDatabase;
+    private FirebaseAuth mAuth;
 
     public SignInActivityViewModel() {
     }
@@ -34,6 +46,7 @@ public class SignInActivityViewModel {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             // Signed in successfully, show authenticated UI.
+
             updateUI(context,account);
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
@@ -80,4 +93,5 @@ public class SignInActivityViewModel {
             });
         }
     }
+
 }
