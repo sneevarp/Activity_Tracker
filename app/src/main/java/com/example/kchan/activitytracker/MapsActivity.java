@@ -2,6 +2,7 @@ package com.example.kchan.activitytracker;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,12 +27,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.kchan.activitytracker.BackgroundService.LocationUpdateBroadcastReceiver;
 import com.example.kchan.activitytracker.Fragment.ProfileFragment;
 import com.example.kchan.activitytracker.Singleton.User;
+import com.example.kchan.activitytracker.Utils.Constants;
 import com.example.kchan.activitytracker.ViewModel.MapsActivityViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -41,7 +48,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
 
     private static final String TAG = "MapActivity";
     private GoogleMap mMap;
@@ -60,6 +67,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Uri personPhoto;
     private boolean isProfileFragmentEnabled;
     private User currentUser;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -73,6 +82,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+                requestLocationUpdates();
                 if(isProfileFragmentEnabled) {
                     currentUser = User.getInstance();
                     Toast.makeText(MapsActivity.this,"Hi " + currentUser.getAccount().getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -96,10 +106,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleSigninClientValue = new GoogleSignInClientValue(this);
         mapsActivityViewModel= new MapsActivityViewModel(this);
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
-        mapsActivityViewModel.startTracking();
+      //  mapsActivityViewModel.startTracking();
         navigationView = (NavigationView)findViewById(R.id.nav_view);
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.drawer_view);
+        buildGoogleApiClient();
+
         initMap();
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(MapsActivity.this);
         if (acct != null) {
@@ -113,6 +125,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    private void buildGoogleApiClient() {
+        if (mGoogleApiClient != null) {
+            return;
+        }
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .enableAutoManage(this, this)
+                .addApi(LocationServices.API)
+                .build();
+        createLocationRequest();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -123,9 +147,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mapsActivityViewModel.unregisterReceiver();
+        removeLocationUpdates();
+       /* mapsActivityViewModel.unregisterReceiver();
         mapsActivityViewModel.stopTracking();
-        mapsActivityViewModel.stopLocationServices();
+        mapsActivityViewModel.stopLocationServices();*/
     }
 
     @Override
@@ -166,9 +191,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Toast.makeText(MapsActivity.this, "Lets logout", Toast.LENGTH_SHORT).show();
                             }
                         });
-                mapsActivityViewModel.unregisterReceiver();
+                /*mapsActivityViewModel.unregisterReceiver();
                 mapsActivityViewModel.stopLocationServices();
-                mapsActivityViewModel.onLogoutClicked();
+                mapsActivityViewModel.onLogoutClicked();*/
                 return true;
             case R.id.profile:
                  displayProfileFragment();
@@ -258,6 +283,58 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             AlertDialog alert = builder.create();
             alert.show();
         }
+    }
+
+    private void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+
+        mLocationRequest.setInterval(Constants.UPDATE_INTERVAL);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(Constants.FASTEST_INTERVAL);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // Sets the maximum time when batched location updates are delivered. Updates may be
+        // delivered sooner than this interval.
+        mLocationRequest.setMaxWaitTime(Constants.MAXIMUM_WAITTIME);
+    }
+
+    private PendingIntent getPendingIntent() {
+        Intent intent = new Intent(this, LocationUpdateBroadcastReceiver.class);
+        intent.setAction(LocationUpdateBroadcastReceiver.ACTION_PROCESS_UPDATES);
+        return PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public void requestLocationUpdates() {
+        try {
+            com.google.android.gms.location.LocationServices.FusedLocationApi.requestLocationUpdates(
+                    mGoogleApiClient, mLocationRequest, getPendingIntent());
+        } catch (SecurityException e) {
+
+        }
+    }
+
+    public void removeLocationUpdates() {
+        Log.i(TAG, "Removing location updates");
+        LocationRequestHelper.setRequesting(this, false);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,
+                getPendingIntent());
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
 

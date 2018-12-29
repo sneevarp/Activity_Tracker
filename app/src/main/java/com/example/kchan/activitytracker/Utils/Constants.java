@@ -11,4 +11,5 @@ public class Constants {
     public static final int PERMISSIONS_REQUEST_ENABLE_GPS = 9003;
     public final static long UPDATE_INTERVAL = 4 * 1000;  /* 4 secs */
     public final static long FASTEST_INTERVAL = 2000; /* 2 sec */
+    public final static long MAXIMUM_WAITTIME = 5000;
 }

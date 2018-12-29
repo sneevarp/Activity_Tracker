@@ -1,6 +1,7 @@
 package com.example.kchan.activitytracker.ViewModel;
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.ViewModel;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,9 +26,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.example.kchan.activitytracker.Utils.Constants.DEFAULT_ZOOM;
 
-public class MapsActivityViewModel extends ViewModel {
+public class MapsActivityViewModel extends ViewModel implements LifecycleObserver {
 
     private static final String TAG = "MAPSACTIVITYVIEWMODEL";
     private BroadcastReceiver broadcastActivityReceiver, broadcastLocationReceiver;
@@ -35,9 +39,22 @@ public class MapsActivityViewModel extends ViewModel {
     private String currentActivity;
     private Location currentLocation;
     private Location mLastKnownLocation;
+    private List<Location> locations;
+
+    public MapsActivityViewModel(){}
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(Context context,List<Location> locations) {
+        this.locations = locations;
+        Toast.makeText(context, getLocations().toString(), Toast.LENGTH_SHORT).show();
+    }
 
     public MapsActivityViewModel(Context context) {
         this.context = context;
+        locations = new ArrayList<Location>();
         broadcastActivityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -95,7 +112,7 @@ public class MapsActivityViewModel extends ViewModel {
                          mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
-                         startLocationServices(mfusedLocationProviderClient);
+                         //startLocationServices(mfusedLocationProviderClient);
                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());
