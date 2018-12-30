@@ -25,9 +25,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.kchan.activitytracker.BackgroundService.LocationUpdateBroadcastReceiver;
 import com.example.kchan.activitytracker.Fragment.ProfileFragment;
 import com.example.kchan.activitytracker.Singleton.User;
@@ -112,7 +115,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .build());
         mapsActivityViewModel= new MapsActivityViewModel(this);
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
-      //  mapsActivityViewModel.startTracking();
+        mapsActivityViewModel.startTracking();
         navigationView = (NavigationView)findViewById(R.id.nav_view);
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.drawer_view);
@@ -154,9 +157,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onDestroy() {
         super.onDestroy();
         removeLocationUpdates();
-       /* mapsActivityViewModel.unregisterReceiver();
+        mapsActivityViewModel.unregisterReceiver();
         mapsActivityViewModel.stopTracking();
-        mapsActivityViewModel.stopLocationServices();*/
+        mapsActivityViewModel.stopLocationServices();
     }
 
     @Override
@@ -174,12 +177,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_options, menu);
-     /*   TextView gname=(TextView)findViewById(R.id.name);
+        TextView gname=(TextView)findViewById(R.id.name);
         gname.setText(personGivenName+" "+personFamilyName);
         TextView gemail=(TextView)findViewById(R.id.email);
         gemail.setText(personEmail);
         ImageView gphoto=findViewById(R.id.profilepic);
-        Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);*/
+        Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);
         if(personPhoto!=null) {
             Glide.with(this).load(personPhoto).apply(RequestOptions.circleCropTransform()).into(gphoto);
         }
@@ -204,8 +207,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Toast.makeText(MapsActivity.this, "Lets logout", Toast.LENGTH_SHORT).show();
                             }
                         });
-                /*mapsActivityViewModel.unregisterReceiver();
-                mapsActivityViewModel.stopLocationServices();*/
+                mapsActivityViewModel.unregisterReceiver();
+                mapsActivityViewModel.stopLocationServices();
                 mapsActivityViewModel.onLogoutClicked();
                 return true;
             case R.id.profile:

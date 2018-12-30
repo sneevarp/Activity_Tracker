@@ -61,6 +61,7 @@
             android:name=".BackgroundService.LocationUpdateBroadcastReceiver"
             android:enabled="true"
             android:exported="true"></receiver>
+        <activity android:name=".DetailsActivity"></activity>
     </application>
 
 </manifest>
