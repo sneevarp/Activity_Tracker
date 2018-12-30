@@ -20,7 +20,7 @@ public class GoogleSignInClientValue {
     public GoogleSignInClientValue(Context context) {
         this.gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
-                .build();;
+                .build();
         this.mGoogleSignInClient = GoogleSignIn.getClient(context, gso);
     }
 

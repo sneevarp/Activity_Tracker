@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -15,7 +14,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.kchan.activitytracker.Utils.Constants;
@@ -24,6 +22,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 
@@ -35,6 +34,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     private GoogleSignInClientValue googleSigninClientValue;
     private SignInActivityViewModel signInActivityViewModel;
     private boolean mLocationPermissionGranted = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,8 +156,6 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if(mLocationPermissionGranted){
                     FirebaseApp.initializeApp(this);
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    signInActivityViewModel.handleSignInResult(this,task);
                 }
                 else{
                     getLocationPermission();
@@ -167,7 +165,16 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
 
             case SignInActivityViewModel.RC_SIGN_IN: {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                signInActivityViewModel.handleSignInResult(this,task);
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    // Signed in successfully, show authenticated UI.
+                    signInActivityViewModel.updateUI(this,account);
+                } catch (ApiException e) {
+                    // The ApiException status code indicates the detailed failure reason.
+                    // Please refer to the GoogleSignInStatusCodes class reference for more information.
+                    Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+                    signInActivityViewModel.updateUI(this,null);
+                }
             }
         }
     }

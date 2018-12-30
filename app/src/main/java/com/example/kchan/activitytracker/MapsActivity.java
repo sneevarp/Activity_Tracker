@@ -34,6 +34,8 @@ import com.example.kchan.activitytracker.Utils.Constants;
 import com.example.kchan.activitytracker.ViewModel.MapsActivityViewModel;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -52,7 +54,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private static final String TAG = "MapActivity";
     private GoogleMap mMap;
-    private GoogleSignInClientValue googleSigninClientValue;
+    private GoogleSignInClient googleSigninClientValue;
     private MapsActivityViewModel mapsActivityViewModel;
     private FusedLocationProviderClient mfusedLocationProviderClient;
     private Location mLastKnownLocation;
@@ -103,7 +105,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         mDrawerLayout = findViewById(R.id.drawer_layout);
-        googleSigninClientValue = new GoogleSignInClientValue(this);
+        googleSigninClientValue = GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build());
         mapsActivityViewModel= new MapsActivityViewModel(this);
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
       //  mapsActivityViewModel.startTracking();
@@ -184,7 +189,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.signout:
-                googleSigninClientValue.getInstance().signOut()
+                googleSigninClientValue.signOut()
                         .addOnCompleteListener(this, new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
@@ -192,8 +197,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         });
                 /*mapsActivityViewModel.unregisterReceiver();
-                mapsActivityViewModel.stopLocationServices();
-                mapsActivityViewModel.onLogoutClicked();*/
+                mapsActivityViewModel.stopLocationServices();*/
+                mapsActivityViewModel.onLogoutClicked();
                 return true;
             case R.id.profile:
                  displayProfileFragment();
@@ -318,6 +323,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void removeLocationUpdates() {
         Log.i(TAG, "Removing location updates");
         LocationRequestHelper.setRequesting(this, false);
+        if(mGoogleApiClient.isConnected())
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,
                 getPendingIntent());
     }
