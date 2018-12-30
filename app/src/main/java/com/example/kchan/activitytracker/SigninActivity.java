@@ -25,8 +25,15 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 import static com.example.kchan.activitytracker.Utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
 
@@ -36,6 +43,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     private GoogleSignInClientValue googleSigninClientValue;
     private SignInActivityViewModel signInActivityViewModel;
     private boolean mLocationPermissionGranted = false;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +54,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
         //register the buttons
         findViewById(R.id.sign_in_button).setOnClickListener((View.OnClickListener) this);
         FirebaseApp.initializeApp(this);
-
+        mAuth = FirebaseAuth.getInstance();
     }
 
 
@@ -158,7 +166,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
                 if(mLocationPermissionGranted){
                     FirebaseApp.initializeApp(this);
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                    signInActivityViewModel.handleSignInResult(this,task);
+                    handleSignInResult(this,task);
                 }
                 else{
                     getLocationPermission();
@@ -168,11 +176,23 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
 
             case SignInActivityViewModel.RC_SIGN_IN: {
                 Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                signInActivityViewModel.handleSignInResult(this,task);
+                handleSignInResult(this,task);
             }
         }
     }
+    public void handleSignInResult(Context context, Task<GoogleSignInAccount> completedTask) {
+        try {
+            GoogleSignInAccount account = completedTask.getResult(ApiException.class);
+            // Signed in successfully, show authenticated UI.
 
+            firebaseAuthWithGoogle(account);
+        } catch (ApiException e) {
+            // The ApiException status code indicates the detailed failure reason.
+            // Please refer to the GoogleSignInStatusCodes class reference for more information.
+            Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
+            //updateUI(context,null);
+        }
+    }
     private void signIn() {
         Intent signInIntent = googleSigninClientValue.getInstance().getSignInIntent();
         startActivityForResult(signInIntent, SignInActivityViewModel.RC_SIGN_IN);
@@ -182,6 +202,7 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     protected void onStart() {
         super.onStart();
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         signInActivityViewModel.updateUI(this,account);
     }
 
@@ -197,6 +218,29 @@ public class SigninActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
+    }
+
+    private void firebaseAuthWithGoogle(final GoogleSignInAccount acct) {
+        Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
+
+        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            signInActivityViewModel.updateUI(SigninActivity.this,acct);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                        }
+
+                        // ...
+                    }
+                });
     }
 
 }
