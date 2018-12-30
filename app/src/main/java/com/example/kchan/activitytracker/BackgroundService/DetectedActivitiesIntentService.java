@@ -1,9 +1,10 @@
-package com.example.kchan.activitytracker.BacgroundService;
+package com.example.kchan.activitytracker.BackgroundService;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.kchan.activitytracker.Utils.Constants;
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -42,6 +43,7 @@ public class DetectedActivitiesIntentService extends IntentService {
     }
 
     private void broadcastActivity(DetectedActivity activity) {
+        Toast.makeText(this, "ACTIVITY", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY);
         intent.putExtra("type", activity.getType());
         intent.putExtra("confidence", activity.getConfidence());
