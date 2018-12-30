@@ -15,7 +15,7 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class LocationResultHelper {
+public class ResultHelper {
 
     final static String KEY_LOCATION_UPDATES_RESULT = "location-update-result";
 
@@ -26,9 +26,19 @@ public class LocationResultHelper {
     private List<Location> mLocations;
     private NotificationManager mNotificationManager;
 
-    public LocationResultHelper(Context context, List<Location> locations) {
+    public ResultHelper(Context context, List<Location> locations) {
         mContext = context;
         mLocations = locations;
+
+        NotificationChannel channel = new NotificationChannel(PRIMARY_CHANNEL,
+                context.getString(R.string.default_channel), NotificationManager.IMPORTANCE_DEFAULT);
+        channel.setLightColor(Color.GREEN);
+        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        getNotificationManager().createNotificationChannel(channel);
+    }
+
+    public ResultHelper(Context context) {
+        mContext = context;
 
         NotificationChannel channel = new NotificationChannel(PRIMARY_CHANNEL,
                 context.getString(R.string.default_channel), NotificationManager.IMPORTANCE_DEFAULT);
@@ -124,5 +134,32 @@ public class LocationResultHelper {
                 .setContentIntent(notificationPendingIntent);
 
         getNotificationManager().notify(0, notificationBuilder.build());
+    }
+
+    public void showNotificationActivity(String update) {
+        Intent notificationIntent = new Intent(mContext, MapsActivity.class);
+
+        // Construct a task stack.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
+
+        // Add the main Activity to the task stack as the parent.
+        stackBuilder.addParentStack(MapsActivity.class);
+
+        // Push the content Intent onto the stack.
+        stackBuilder.addNextIntent(notificationIntent);
+
+        // Get a PendingIntent containing the entire back stack.
+        PendingIntent notificationPendingIntent =
+                stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification.Builder notificationBuilder = new Notification.Builder(mContext,
+                PRIMARY_CHANNEL)
+                .setContentTitle("Activity Recognition On")
+                .setContentText(update)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setAutoCancel(true)
+                .setContentIntent(notificationPendingIntent);
+
+        getNotificationManager().notify(1, notificationBuilder.build());
     }
 }

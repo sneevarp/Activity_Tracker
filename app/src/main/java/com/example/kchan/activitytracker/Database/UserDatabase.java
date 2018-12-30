@@ -1,8 +1,5 @@
 package com.example.kchan.activitytracker.Database;
 
-import android.util.Log;
-
-import com.example.kchan.activitytracker.DetailsActivity;
 import com.example.kchan.activitytracker.Singleton.User;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

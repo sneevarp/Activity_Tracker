@@ -1,7 +1,5 @@
 package com.example.kchan.activitytracker.Database;
 
-import android.util.Log;
-
 public class UserInfo {
 
     private String name;
@@ -33,7 +31,6 @@ public class UserInfo {
 
     public void setDob(String dob) {
         this.dob = dob;
-        //Log.e("From UserInfo",this.dob);
     }
 
     public String getHeight() {

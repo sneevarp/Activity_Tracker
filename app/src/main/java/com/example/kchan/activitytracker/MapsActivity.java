@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.kchan.activitytracker.BackgroundService.ActivityBroadcastReceiver;
 import com.example.kchan.activitytracker.BackgroundService.LocationUpdateBroadcastReceiver;
 import com.example.kchan.activitytracker.Fragment.ProfileFragment;
 import com.example.kchan.activitytracker.Singleton.User;
@@ -42,16 +43,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import static com.example.kchan.activitytracker.Utils.Constants.DEFAULT_ZOOM;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
@@ -61,8 +65,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private GoogleSignInClient googleSigninClientValue;
     private MapsActivityViewModel mapsActivityViewModel;
     private FusedLocationProviderClient mfusedLocationProviderClient;
-    private Location mLastKnownLocation;
-    private Marker marker;
     private NavigationView navigationView;
     private DrawerLayout mDrawerLayout;
     private String personName;
@@ -75,6 +77,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private User currentUser;
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
+    private ActivityRecognitionClient mActivityRecognitionClient;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -84,10 +87,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         mMap.setMyLocationEnabled(true);
         mapsActivityViewModel.updateLocationUI(mMap);
-        mapsActivityViewModel.getDeviceLocation(mfusedLocationProviderClient, mMap);
+        getDeviceLocation(mfusedLocationProviderClient, mMap);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
+                requestActivityUpdates();
                 requestLocationUpdates();
                 if(isProfileFragmentEnabled) {
                     currentUser = User.getInstance();
@@ -99,6 +103,33 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         }
 
+    public void getDeviceLocation(final FusedLocationProviderClient mfusedLocationProviderClient, final GoogleMap mMap) {
+        /*
+         * Get the best and most recent location of the device, which may be null in rare
+         * cases when a location is not available.
+         */
+        try {
+            Task locationResult = mfusedLocationProviderClient.getLastLocation();
+            locationResult.addOnCompleteListener( this, new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
+                        // Set the map's camera position to the current location of the device.
+                        Location mLastKnownLocation = (Location)task.getResult();
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(mLastKnownLocation.getLatitude(),
+                                        mLastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+                    } else {
+                        Log.d(TAG, "Current location is null. Using defaults.");
+                        Log.e(TAG, "Exception: %s", task.getException());
+                        mMap.getUiSettings().setMyLocationButtonEnabled(false);
+                    }
+                }
+            });
+        } catch(SecurityException e)  {
+            Log.e("Exception: %s", e.getMessage());
+        }
+    }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,18 +140,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
         mDrawerLayout = findViewById(R.id.drawer_layout);
+        mActivityRecognitionClient = new ActivityRecognitionClient(this);
         googleSigninClientValue = GoogleSignIn.getClient(this, new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build());
-        mapsActivityViewModel= new MapsActivityViewModel(this);
+        MapsActivityViewModel.init(getApplicationContext());
+        mapsActivityViewModel = MapsActivityViewModel.getInstance();
         mfusedLocationProviderClient = new FusedLocationProviderClient(this);
-        mapsActivityViewModel.startTracking();
         navigationView = (NavigationView)findViewById(R.id.nav_view);
         navigationView.getMenu().clear();
         navigationView.inflateMenu(R.menu.drawer_view);
         buildGoogleApiClient();
-
         initMap();
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(MapsActivity.this);
         if (acct != null) {
@@ -149,17 +180,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onResume() {
         super.onResume();
-        mapsActivityViewModel.registerReceiver();
-
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         removeLocationUpdates();
-        mapsActivityViewModel.unregisterReceiver();
-        mapsActivityViewModel.stopTracking();
-        mapsActivityViewModel.stopLocationServices();
+        removeActivityUpdate();
     }
 
     @Override
@@ -207,8 +234,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 Toast.makeText(MapsActivity.this, "Lets logout", Toast.LENGTH_SHORT).show();
                             }
                         });
-                mapsActivityViewModel.unregisterReceiver();
-                mapsActivityViewModel.stopLocationServices();
                 mapsActivityViewModel.onLogoutClicked();
                 return true;
             case R.id.profile:
@@ -303,14 +328,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-
         mLocationRequest.setInterval(Constants.UPDATE_INTERVAL);
 
         // Sets the fastest rate for active location updates. This interval is exact, and your
         // application will never receive updates faster than this value.
         mLocationRequest.setFastestInterval(Constants.FASTEST_INTERVAL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
         // Sets the maximum time when batched location updates are delivered. Updates may be
         // delivered sooner than this interval.
         mLocationRequest.setMaxWaitTime(Constants.MAXIMUM_WAITTIME);
@@ -329,6 +352,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (SecurityException e) {
 
         }
+    }
+
+    private PendingIntent getActivityIntent(){
+        Intent mIntentService = new Intent(this, ActivityBroadcastReceiver.class);
+        mIntentService.setAction(ActivityBroadcastReceiver.ACTIVITY_PROCESS_UPDATES);
+        return PendingIntent.getBroadcast(this, 1, mIntentService, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public void requestActivityUpdates(){
+        mActivityRecognitionClient.requestActivityUpdates(Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                getActivityIntent());
+    }
+
+    public void removeActivityUpdate(){
+        mActivityRecognitionClient.removeActivityUpdates(
+                getActivityIntent());
     }
 
     public void removeLocationUpdates() {
