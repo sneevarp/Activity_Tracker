@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "587793261499",
-    "firebase_url": "https://activitytracker-1543987611352.firebaseio.com",
-    "project_id": "activitytracker-1543987611352",
-    "storage_bucket": "activitytracker-1543987611352.appspot.com"
+    "project_number": "68666687061",
+    "firebase_url": "https://activity-227502.firebaseio.com",
+    "project_id": "activity-227502",
+    "storage_bucket": "activity-227502.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:587793261499:android:0da38a9b9120573c",
+        "mobilesdk_app_id": "1:68666687061:android:ca89e1005f5afee2",
         "android_client_info": {
-          "package_name": "com.example.kchan.activitytracker"
+          "package_name": "com.activitytracker.kchan.activitytracker"
         }
       },
       "oauth_client": [
         {
-          "client_id": "587793261499-9ij4f5q8mcdq0olub8m832r0tjc5p2h2.apps.googleusercontent.com",
+          "client_id": "68666687061-ufd2ojg8v58l5llics8s4dbb1o783ves.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.kchan.activitytracker",
+            "package_name": "com.activitytracker.kchan.activitytracker",
             "certificate_hash": "ecb261167643544926098ec9f44c74bcd42be2d9"
           }
         },
         {
-          "client_id": "587793261499-eud6k1piqhpkabkfre90dk87pl6fhpaq.apps.googleusercontent.com",
+          "client_id": "68666687061-t65q17o5f05vqb2f4d7lfs1d85074qpp.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDyJ0blxpFlTVFyaixfP9_CtZOAoLxAwU0"
+          "current_key": "AIzaSyDfUaxnRrWEVN3qrzRlH8PzQoDp6XEuI5o"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "587793261499-eud6k1piqhpkabkfre90dk87pl6fhpaq.apps.googleusercontent.com",
+              "client_id": "68666687061-t65q17o5f05vqb2f4d7lfs1d85074qpp.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
