@@ -8,25 +8,33 @@ android {
             storeFile file("/debug.keystore")
             storePassword 'android'
         }
+        trialk {
+            keyAlias 'trialkey'
+            keyPassword 'spck1961'
+            storeFile file('/trial.jks')
+            storePassword 'spck1994'
+        }
     }
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.example.kchan.activitytracker"
+        applicationId 'com.activitytracker.kchan.activitytracker'
         minSdkVersion 26
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName '1.7'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.trialk
         }
-
         debug {
             signingConfig signingConfigs.config
         }
+    }
+    productFlavors {
     }
 }
 
