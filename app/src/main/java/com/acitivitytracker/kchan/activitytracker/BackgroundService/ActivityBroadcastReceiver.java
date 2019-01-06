@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.acitivitytracker.kchan.activitytracker.MapsActivity;
 import com.acitivitytracker.kchan.activitytracker.ResultHelper;
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
@@ -27,10 +28,10 @@ public class ActivityBroadcastReceiver extends BroadcastReceiver {
                 ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
                 if (result != null) {
                     List<DetectedActivity> locations = result.getProbableActivities();
-                    ResultHelper locationResultHelper = new ResultHelper(context);
+                    ResultHelper locationResultHelper = ResultHelper.getRhInstance();
                     // Show notification with the location data.
                     locationResultHelper.showNotificationActivity(locations.get(locations.size()-1).getType(), locations.get(locations.size()-1).getConfidence());
-                    Log.i(TAG, locations.toString());
+                    Log.i(TAG, result.getMostProbableActivity().toString());
                 }
             }
         }

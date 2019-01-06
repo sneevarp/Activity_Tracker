@@ -35,12 +35,11 @@ public class LocationUpdateBroadcastReceiver extends BroadcastReceiver {
                 if (result != null) {
                     List<Location> locations = result.getLocations();
                     mapsActivityViewModel.setLocations(context,locations);
-                    ResultHelper locationResultHelper = new ResultHelper(
-                            context, locations);
+                    ResultHelper locationResultHelper = ResultHelper.getRhInstance();
+                    // Show notification with the location data.
+                    locationResultHelper.showNotification(locations);
                     // Save the location data to SharedPreferences.
                     locationResultHelper.saveResults();
-                    // Show notification with the location data.
-                    locationResultHelper.showNotification();
                     Log.i(TAG, ResultHelper.getSavedLocationResult(context));
                 }
             }

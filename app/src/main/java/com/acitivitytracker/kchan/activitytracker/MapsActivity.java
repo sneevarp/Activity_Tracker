@@ -3,6 +3,7 @@ package com.acitivitytracker.kchan.activitytracker;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,8 +53,14 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.acitivitytracker.kchan.activitytracker.Utils.Constants.DEFAULT_ZOOM;
 
@@ -78,6 +85,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference myRef = database.getReference();
+    private Context mcontext;
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -87,13 +97,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         Toast.makeText(this, "Tap on Map to start", Toast.LENGTH_SHORT).show();
         mMap.setMyLocationEnabled(true);
+        ResultHelper.init(this);
         mapsActivityViewModel.updateLocationUI(mMap);
         getDeviceLocation(mfusedLocationProviderClient, mMap);
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                requestActivityUpdates();
                 requestLocationUpdates();
+                requestActivityUpdates();
                 if(isProfileFragmentEnabled) {
                     currentUser = User.getInstance();
                     Toast.makeText(MapsActivity.this,"Hi " + currentUser.getAccount().getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -120,16 +131,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()), 15));
-                    } else {
+                        setMarker(mLastKnownLocation);
+                        //set marker for first location
+                        //add location to list
+                        //add data to firebase
+                     } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                    }
+                                          }
                 }
             });
         } catch(SecurityException e)  {
             Log.e("Exception: %s", e.getMessage());
         }
+    }
+    public void setMarker(Location location){
+        mMap.addMarker(new MarkerOptions()
+                .position(new LatLng(location.getLatitude(),location.getLongitude()))
+                .title("Activity"));
     }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -163,6 +183,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             personId = acct.getId();
             personPhoto = acct.getPhotoUrl();
         }
+
 
     }
 
@@ -358,6 +379,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private PendingIntent getActivityIntent(){
         Intent mIntentService = new Intent(this, ActivityBroadcastReceiver.class);
         mIntentService.setAction(ActivityBroadcastReceiver.ACTIVITY_PROCESS_UPDATES);
+        //Intent activityintent=getIntent();
+        //String activitymessage= activityintent.getStringExtra("activity");
+        //Log.d("Praveencheck",activitymessage);
         return PendingIntent.getBroadcast(this, 1, mIntentService, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
