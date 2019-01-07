@@ -3,7 +3,6 @@ package com.acitivitytracker.kchan.activitytracker;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,14 +29,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.acitivitytracker.kchan.activitytracker.BackgroundService.ActivityBroadcastReceiver;
 import com.acitivitytracker.kchan.activitytracker.BackgroundService.LocationUpdateBroadcastReceiver;
+import com.acitivitytracker.kchan.activitytracker.BackgroundService.ObservableObject;
 import com.acitivitytracker.kchan.activitytracker.Fragment.ProfileFragment;
 import com.acitivitytracker.kchan.activitytracker.Singleton.User;
 import com.acitivitytracker.kchan.activitytracker.Utils.Constants;
 import com.acitivitytracker.kchan.activitytracker.ViewModel.MapsActivityViewModel;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -56,16 +56,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.acitivitytracker.kchan.activitytracker.Utils.Constants.DEFAULT_ZOOM;
+import java.util.Observable;
+import java.util.Observer;
 
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks ,Observer{
 
     private static final String TAG = "MapActivity";
     private GoogleMap mMap;
@@ -85,10 +81,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private ActivityRecognitionClient mActivityRecognitionClient;
-    private FirebaseDatabase database = FirebaseDatabase.getInstance();
-    private DatabaseReference myRef = database.getReference();
-    private Context mcontext;
-
+    private static String currentActivity;
+    private static Double currentLong;
+    private static Double currentLat;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -115,6 +110,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
         }
 
+    public static void ListeningMethod(){
+
+    }
     public void getDeviceLocation(final FusedLocationProviderClient mfusedLocationProviderClient, final GoogleMap mMap) {
         /*
          * Get the best and most recent location of the device, which may be null in rare
@@ -132,7 +130,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()), 15));
                         setMarker(mLastKnownLocation);
-                        //set marker for first location
                         //add location to list
                         //add data to firebase
                      } else {
@@ -174,6 +171,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         navigationView.inflateMenu(R.menu.drawer_view);
         buildGoogleApiClient();
         initMap();
+        ObservableObject.getInstance().addObserver(MapsActivity.this);
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(MapsActivity.this);
         if (acct != null) {
             personName = acct.getDisplayName();
@@ -379,9 +377,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private PendingIntent getActivityIntent(){
         Intent mIntentService = new Intent(this, ActivityBroadcastReceiver.class);
         mIntentService.setAction(ActivityBroadcastReceiver.ACTIVITY_PROCESS_UPDATES);
-        //Intent activityintent=getIntent();
-        //String activitymessage= activityintent.getStringExtra("activity");
-        //Log.d("Praveencheck",activitymessage);
         return PendingIntent.getBroadcast(this, 1, mIntentService, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
@@ -415,6 +410,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void update(Observable o, Object obj) {
+
+        Toast.makeText(this, String.valueOf("activity observer " + obj.toString()), Toast.LENGTH_SHORT).show();
+        Log.d("PraveenCheck",obj.toString());
+
 
     }
 }

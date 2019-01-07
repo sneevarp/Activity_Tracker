@@ -1,12 +1,14 @@
 package com.acitivitytracker.kchan.activitytracker.ViewModel;
+import java.util.Observable;
 
-public class LocatedActivity {
-    private String activity;
-    private Double latitude;
-    private Double longitude;
+public class LocatedActivity extends Observable{
+    private static String activity;
+    private static Double latitude;
+    private static Double longitude;
 
     public void setActivity(String activity) {
         this.activity = activity;
+
     }
 
     public void setLatitude(Double latitude) {
@@ -15,8 +17,8 @@ public class LocatedActivity {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
-    }
 
+    }
     public String getActivity() {
 
         return activity;

@@ -1,6 +1,7 @@
 package com.acitivitytracker.kchan.activitytracker.ViewModel;
 
 import android.arch.lifecycle.LifecycleObserver;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
 import android.content.Intent;
@@ -34,6 +35,7 @@ public class MapsActivityViewModel extends ViewModel implements LifecycleObserve
     private MapsActivityViewModel(Context context){
         this.context = context;
     }
+    LocatedActivity la=new LocatedActivity();
 
     public List<Location> getLocations() {
         return locations;
@@ -42,11 +44,9 @@ public class MapsActivityViewModel extends ViewModel implements LifecycleObserve
     public void setLocations(Context context,List<Location> locations) {
         this.locations = locations;
     }
-
     public static void init(Context context) {
         mInstance = new MapsActivityViewModel(context);
     }
-
     public void updateLocationUI(GoogleMap mMap) {
         if (mMap == null) {
             return;

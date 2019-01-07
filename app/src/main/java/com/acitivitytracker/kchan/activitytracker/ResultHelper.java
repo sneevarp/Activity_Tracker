@@ -10,8 +10,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
+import com.acitivitytracker.kchan.activitytracker.BackgroundService.ObservableObject;
 import com.acitivitytracker.kchan.activitytracker.ViewModel.LocatedActivity;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -69,17 +69,6 @@ public class ResultHelper {
         channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         getNotificationManager().createNotificationChannel(channel);
     }
-
-    /*public ResultHelper(Context context) {
-        mContext = context;
-
-        NotificationChannel channel = new NotificationChannel(PRIMARY_CHANNEL,
-                context.getString(R.string.default_channel), NotificationManager.IMPORTANCE_DEFAULT);
-        channel.setLightColor(Color.GREEN);
-        channel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-        getNotificationManager().createNotificationChannel(channel);
-    }
-*/
     /**
      * Returns the title for reporting about a list of {@link Location} objects.
      */
@@ -162,7 +151,6 @@ public class ResultHelper {
         PendingIntent notificationPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         setLocationstring(getLocationResultText());
-        Log.d("praveencheckLocation",getLocationstring()+"-->"+getActivityname());
         Notification.Builder notificationBuilder = new Notification.Builder(mContext,
                 PRIMARY_CHANNEL)
                 .setContentTitle(getLocationResultTitle())
@@ -180,35 +168,13 @@ public class ResultHelper {
 
     public void showNotificationActivity(int update, int confidence) {
         if(confidence > 20){
-          /*  Intent notificationIntent = new Intent(mContext, MapsActivity.class);
-
-            // Construct a task stack.
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(mContext);
-
-            // Add the main Activity to the task stack as the parent.
-            stackBuilder.addParentStack(MapsActivity.class);
-
-            // Push the content Intent onto the stack.
-            stackBuilder.addNextIntent(notificationIntent);
-
-            // Get a PendingIntent containing the entire back stack.
-            PendingIntent notificationPendingIntent =
-                    stackBuilder.getPendingIntent(1, PendingIntent.FLAG_UPDATE_CURRENT);
-*/
-          if(getActivity(update) != null)
-
             setActivityname(getActivity(update));
-            Log.d("praveencheck",getLocationstring()+"-->"+getActivityname());
+            LocatedActivity la=new LocatedActivity();
+            la.setActivity(getActivityname());
+            la.setLatitude(mLocations.get(0).getLatitude());
+            la.setLongitude(mLocations.get(0).getLongitude());
 
-/*            Notification.Builder notificationBuilder = new Notification.Builder(mContext,
-                    PRIMARY_CHANNEL)
-                    .setContentTitle("Activity Recognition On")
-                    .setContentText(getActivity(update))
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setAutoCancel(true)
-                    .setContentIntent(notificationPendingIntent);*/
-
-   //         getNotificationManager().notify(1, notificationBuilder.build());
+            ObservableObject.getInstance().updateValue(la);
         }
     }
 
