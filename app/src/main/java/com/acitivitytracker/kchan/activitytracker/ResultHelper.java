@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.location.Location;
 import android.preference.PreferenceManager;
 
-import com.acitivitytracker.kchan.activitytracker.BackgroundService.ObservableObject;
 import com.acitivitytracker.kchan.activitytracker.ViewModel.LocatedActivity;
 import com.google.android.gms.location.DetectedActivity;
 
@@ -151,6 +150,8 @@ public class ResultHelper {
         PendingIntent notificationPendingIntent =
                 stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         setLocationstring(getLocationResultText());
+        setValues();
+        LocatedActivity.getInstance().updateValue(locationstring);
         Notification.Builder notificationBuilder = new Notification.Builder(mContext,
                 PRIMARY_CHANNEL)
                 .setContentTitle(getLocationResultTitle())
@@ -165,16 +166,16 @@ public class ResultHelper {
     public void setActivityname(String activityname) {
         this.activityname = activityname;
     }
-
+    public void setValues(){
+        LocatedActivity la=new LocatedActivity();
+        la.setActivity(getActivityname());
+        la.setLatitude(mLocations.get(0).getLatitude());
+        la.setLongitude(mLocations.get(0).getLongitude());
+    }
     public void showNotificationActivity(int update, int confidence) {
         if(confidence > 20){
             setActivityname(getActivity(update));
-            LocatedActivity la=new LocatedActivity();
-            la.setActivity(getActivityname());
-            la.setLatitude(mLocations.get(0).getLatitude());
-            la.setLongitude(mLocations.get(0).getLongitude());
-
-            ObservableObject.getInstance().updateValue(la);
+            setValues();
         }
     }
 

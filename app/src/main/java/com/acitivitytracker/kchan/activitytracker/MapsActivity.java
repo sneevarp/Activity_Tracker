@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -31,10 +32,10 @@ import android.widget.Toast;
 
 import com.acitivitytracker.kchan.activitytracker.BackgroundService.ActivityBroadcastReceiver;
 import com.acitivitytracker.kchan.activitytracker.BackgroundService.LocationUpdateBroadcastReceiver;
-import com.acitivitytracker.kchan.activitytracker.BackgroundService.ObservableObject;
 import com.acitivitytracker.kchan.activitytracker.Fragment.ProfileFragment;
 import com.acitivitytracker.kchan.activitytracker.Singleton.User;
 import com.acitivitytracker.kchan.activitytracker.Utils.Constants;
+import com.acitivitytracker.kchan.activitytracker.ViewModel.LocatedActivity;
 import com.acitivitytracker.kchan.activitytracker.ViewModel.MapsActivityViewModel;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -54,9 +55,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -84,6 +89,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static String currentActivity;
     private static Double currentLong;
     private static Double currentLat;
+    private List<LatLng> points=new ArrayList<LatLng>();
+    private int activityColor;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -129,9 +136,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()), 15));
+                        LatLng newLocation=new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+                        points.add(newLocation);
                         setMarker(mLastKnownLocation);
-                        //add location to list
-                        //add data to firebase
                      } else {
                         Log.d(TAG, "Current location is null. Using defaults.");
                         Log.e(TAG, "Exception: %s", task.getException());
@@ -171,7 +178,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         navigationView.inflateMenu(R.menu.drawer_view);
         buildGoogleApiClient();
         initMap();
-        ObservableObject.getInstance().addObserver(MapsActivity.this);
+        LocatedActivity.getInstance().addObserver(MapsActivity.this);
         GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(MapsActivity.this);
         if (acct != null) {
             personName = acct.getDisplayName();
@@ -415,11 +422,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void update(Observable o, Object obj) {
-
-        Toast.makeText(this, String.valueOf("activity observer " + obj.toString()), Toast.LENGTH_SHORT).show();
-        Log.d("PraveenCheck",obj.toString());
-
-
+        LocatedActivity la=new LocatedActivity();
+        currentLat=la.getLatitude();
+        currentLong=la.getLongitude();
+        currentActivity=la.getActivity();
+        LatLng Location=new LatLng(currentLat,currentLong);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(currentLat,currentLong), 15));
+        points.add(Location);
+        drawPolyline();
+        Log.d("PraveenCheck",String.valueOf(Location.toString()+"-->"+currentActivity));
+    }
+    public void drawPolyline(){
+        /*switch (currentActivity) {
+            case "DRIVING": {
+               activityColor=Color.BLUE;
+            }
+            case "Riding BICYCLE": {
+                activityColor=Color.MAGENTA;
+            }
+            case "WALKING": {
+                activityColor=Color.BLACK;
+            }
+            case "RUNNING": {
+                activityColor=Color.CYAN;
+            }
+            case "STILL": {
+                activityColor=Color.GRAY;
+            }
+            case "Tilted": {
+                activityColor=Color.GREEN;
+            }
+            case "Walking": {
+                activityColor=Color.RED;
+            }
+            case "NOT FOUND":{
+                activityColor=Color.YELLOW;
+            }
+        }*/
+        Polyline line = mMap.addPolyline(new PolylineOptions()
+                .addAll(points)
+                .width(10)
+                .color(Color.BLUE));
+        Toast.makeText(this, currentActivity, Toast.LENGTH_SHORT).show();
     }
 }
 

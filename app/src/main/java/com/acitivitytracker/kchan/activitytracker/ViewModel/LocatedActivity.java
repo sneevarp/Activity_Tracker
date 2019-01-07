@@ -5,7 +5,19 @@ public class LocatedActivity extends Observable{
     private static String activity;
     private static Double latitude;
     private static Double longitude;
+    private static LocatedActivity instance = new LocatedActivity();
+    public static LocatedActivity getInstance() {
+        return instance;
+    }
+    public LocatedActivity() {
+    }
 
+    public void updateValue(Object data) {
+        synchronized (this) {
+            setChanged();
+            notifyObservers(data);
+        }
+    }
     public void setActivity(String activity) {
         this.activity = activity;
 
