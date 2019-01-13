@@ -90,7 +90,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static Double currentLong;
     private static Double currentLat;
     private List<LatLng> points=new ArrayList<LatLng>();
-    private int activityColor;
+    private LatLng oLocation;
+    private LatLng nLocation;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -105,8 +106,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                requestLocationUpdates();
+
                 requestActivityUpdates();
+                requestLocationUpdates();
                 if(isProfileFragmentEnabled) {
                     currentUser = User.getInstance();
                     Toast.makeText(MapsActivity.this,"Hi " + currentUser.getAccount().getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -137,6 +139,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 new LatLng(mLastKnownLocation.getLatitude(),
                                         mLastKnownLocation.getLongitude()), 15));
                         LatLng newLocation=new LatLng(mLastKnownLocation.getLatitude(),mLastKnownLocation.getLongitude());
+                        oLocation=newLocation;
                         points.add(newLocation);
                         setMarker(mLastKnownLocation);
                      } else {
@@ -429,41 +432,50 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LatLng Location=new LatLng(currentLat,currentLong);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                 new LatLng(currentLat,currentLong), 15));
+        nLocation=Location;
         points.add(Location);
-        drawPolyline();
+        if(currentActivity!=null)
+        {
+            drawPolyline();
+        }
         Log.d("PraveenCheck",String.valueOf(Location.toString()+"-->"+currentActivity));
     }
     public void drawPolyline(){
-        /*switch (currentActivity) {
+        int activityColor;
+        switch (currentActivity) {
             case "DRIVING": {
-               activityColor=Color.BLUE;
+               activityColor =Color.BLUE;
+               break;
             }
             case "Riding BICYCLE": {
-                activityColor=Color.MAGENTA;
+                activityColor =Color.MAGENTA;break;
             }
             case "WALKING": {
-                activityColor=Color.BLACK;
+                activityColor =Color.BLACK;break;
             }
             case "RUNNING": {
-                activityColor=Color.CYAN;
+                activityColor =Color.CYAN;break;
             }
             case "STILL": {
-                activityColor=Color.GRAY;
+                activityColor =Color.GRAY;break;
             }
             case "Tilted": {
-                activityColor=Color.GREEN;
+                activityColor =Color.GREEN;break;
             }
             case "Walking": {
-                activityColor=Color.RED;
+                activityColor =Color.RED;break;
             }
             case "NOT FOUND":{
-                activityColor=Color.YELLOW;
+                activityColor =Color.YELLOW;break;
             }
-        }*/
+            default:
+                activityColor=Color.RED;
+        }
         Polyline line = mMap.addPolyline(new PolylineOptions()
-                .addAll(points)
+                .add(oLocation,nLocation)
                 .width(10)
-                .color(Color.BLUE));
+                .color(activityColor));
+        oLocation=nLocation;
         Toast.makeText(this, currentActivity, Toast.LENGTH_SHORT).show();
     }
 }

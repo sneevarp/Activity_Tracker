@@ -173,7 +173,7 @@ public class ResultHelper {
         la.setLongitude(mLocations.get(0).getLongitude());
     }
     public void showNotificationActivity(int update, int confidence) {
-        if(confidence > 20){
+        if(confidence > 60){
             setActivityname(getActivity(update));
             setValues();
         }
